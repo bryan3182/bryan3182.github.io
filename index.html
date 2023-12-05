@@ -1,26 +1,20 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Pagina html</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 </head>
 <body>
+    <form id="crud-form" action="">
+        <label for="">nombre:</label>
+        <input type="text" id="nombre">
+        <label for="">edad:</label>
+        <input type="number" id="edad">
+        <button type="button" onclick="crearRegistro">crear</button>
+    </form>
 
-    <header>
-        <h1>¡Bienvenido a mi pagina Bryan Sanchez </h1>
-    </header>
-
-    <main>
-        <p>Esta es una página web de lenguajes de programacion.</p>
-        <p>Puedes aprender más sobre HTML, CSS y JavaScript para crear páginas web increíbles.</p>
-        <p> Universidad Tecnica De Cotopaxi </p>
-        <a href="https://www.ejemplo.com">Visita nuestro sitio web de ejemplo</a>
-    </main>
-
-    <footer>
-        <p>&copy; 2023 MiPáginaWeb.com</p>
-    </footer>
-    <script type="module">
+<script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         // TODO: Add SDKs for Firebase products that you want to use
