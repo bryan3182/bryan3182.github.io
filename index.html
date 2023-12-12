@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>CRUD Productos Rufles</title>
+    <title>CRUD Productos</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -74,7 +74,7 @@
 </head>
 
 <body>
-    <h1>CRUD Productos</h1>
+    <h1>CRUD Productos Pepsi</h1>
     <form id="crud-form">
         <label for="nombre">Nombre del Producto:</label>
         <input type="text" id="nombre" required>
@@ -86,6 +86,7 @@
         <input type="number" id="cantidad" required>
         <label for="fecha">Fecha de Envío:</label>
         <input type="date" id="fecha" required>
+        <input type="hidden" id="recordKey"> <!-- Hidden input to store the key of the current record -->
         <button type="button" onclick="crearOActualizarRegistro()">Guardar</button>
         <button type="button" onclick="limpiarFormulario()">Limpiar</button>
     </form>
@@ -129,6 +130,7 @@
         const distribuidoraInput = document.getElementById("distribuidora");
         const cantidadInput = document.getElementById("cantidad");
         const fechaInput = document.getElementById("fecha");
+        const recordKeyInput = document.getElementById("recordKey");
 
         window.crearOActualizarRegistro = function () {
             const nombre = nombreInput.value;
@@ -136,18 +138,16 @@
             const distribuidora = distribuidoraInput.value;
             const cantidad = cantidadInput.value;
             const fecha = fechaInput.value;
+            const recordKey = recordKeyInput.value;
 
             if (nombre && tipo && distribuidora && cantidad && fecha) {
-                const recordRef = ref(database, `producto/${nombre}`);
-                onValue(recordRef, (snapshot) => {
-                    if (snapshot.exists()) {
-                        // Record exists, update it
-                        actualizarRegistro(nombre);
-                    } else {
-                        // Record doesn't exist, create it
-                        crearRegistro();
-                    }
-                });
+                if (recordKey) {
+                    // If recordKey is present, update the existing record
+                    actualizarRegistro(recordKey);
+                } else {
+                    // If recordKey is not present, create a new record
+                    crearRegistro();
+                }
             } else {
                 alert("Todos los campos son obligatorios");
             }
@@ -194,6 +194,7 @@
             tableBody.innerHTML = "";
 
             snapshot.forEach((childSnapshot) => {
+                const key = childSnapshot.key;
                 const data = childSnapshot.val();
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -203,25 +204,26 @@
                     <td>${data.cantidad}</td>
                     <td>${data.fecha}</td>
                     <td>
-                        <button onclick="llenarFormulario('${data.nombre}', '${data.tipo}', '${data.distribuidora}', '${data.cantidad}', '${data.fecha}')">Actualizar</button>
-                        <button onclick="eliminarRegistro('${data.nombre}')">Eliminar</button>
+                        <button onclick="llenarFormulario('${key}', '${data.nombre}', '${data.tipo}', '${data.distribuidora}', '${data.cantidad}', '${data.fecha}')">Actualizar</button>
+                        <button onclick="eliminarRegistro('${key}')">Eliminar</button>
                     </td>
                 `;
                 tableBody.appendChild(row);
             });
         });
 
-        window.llenarFormulario = function (nombre, tipo, distribuidora, cantidad, fecha) {
+        window.llenarFormulario = function (key, nombre, tipo, distribuidora, cantidad, fecha) {
             nombreInput.value = nombre;
             tipoInput.value = tipo;
             distribuidoraInput.value = distribuidora;
             cantidadInput.value = cantidad;
             fechaInput.value = fecha;
+            recordKeyInput.value = key;
 
             const crearButton = document.querySelector("button[onclick='crearOActualizarRegistro()']");
             crearButton.textContent = "Actualizar";
             crearButton.onclick = function () {
-                actualizarRegistro(nombre);
+                actualizarRegistro(key);
             };
         }
 
@@ -231,6 +233,7 @@
             distribuidoraInput.value = "";
             cantidadInput.value = "";
             fechaInput.value = "";
+            recordKeyInput.value = ""; // Clear the record key
 
             const crearButton = document.querySelector("button[onclick='crearOActualizarRegistro()']");
             crearButton.textContent = "Guardar";
