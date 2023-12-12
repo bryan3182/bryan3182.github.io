@@ -74,7 +74,7 @@
 </head>
 
 <body>
-    <h1>CRUD Productos Ecuador</h1>
+    <h1>CRUD Productos Latacunga</h1>
     <form id="crud-form">
         <label for="nombre">Nombre del Producto:</label>
         <input type="text" id="nombre" required>
@@ -181,7 +181,7 @@
         window.actualizarRegistro = function (nombre, fechaAnterior) {
             const fecha = fechaInput.value;
             const updates = {};
-            updates[`/producto/${nombre}`] = {
+            updates[`/Bryan_Sanchez/${nombre}`] = {
                 nombre: nombreInput.value,
                 tipo: tipoInput.value,
                 distribuidora: distribuidoraInput.value,
