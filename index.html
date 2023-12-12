@@ -171,7 +171,7 @@
 
         window.actualizarRegistro = function (nombre) {
             const updates = {};
-            updates[`/producto/${nombre}`] = {
+            updates[`/Bryan_Sanchez/${nombre}`] = {
                 nombre: nombreInput.value,
                 tipo: tipoInput.value,
                 distribuidora: distribuidoraInput.value,
@@ -185,12 +185,12 @@
         }
 
         window.eliminarRegistro = function (nombre) {
-            remove(ref(database, `producto/${nombre}`));
+            remove(ref(database, `Bryan_Sanchez/${nombre}`));
 
             limpiarFormulario();
         }
 
-        onValue(ref(database, 'producto'), (snapshot) => {
+        onValue(ref(database, 'Bryan_Sanchez'), (snapshot) => {
             const tableBody = document.getElementById('table-body');
             tableBody.innerHTML = "";
 
