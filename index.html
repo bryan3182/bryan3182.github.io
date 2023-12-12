@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>CRUD Productos</title>
+    <title>CRUD Productos Rufles</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -74,7 +74,7 @@
 </head>
 
 <body>
-    <h1>CRUD Productos Pepsi</h1>
+    <h1>CRUD Productos</h1>
     <form id="crud-form">
         <label for="nombre">Nombre del Producto:</label>
         <input type="text" id="nombre" required>
@@ -138,12 +138,16 @@
             const fecha = fechaInput.value;
 
             if (nombre && tipo && distribuidora && cantidad && fecha) {
-                const crearButton = document.querySelector("button[onclick='crearOActualizarRegistro()']");
-                if (crearButton.textContent === "Actualizar") {
-                    actualizarRegistro(nombre);
-                } else {
-                    crearRegistro();
-                }
+                const recordRef = ref(database, `producto/${nombre}`);
+                onValue(recordRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        // Record exists, update it
+                        actualizarRegistro(nombre);
+                    } else {
+                        // Record doesn't exist, create it
+                        crearRegistro();
+                    }
+                });
             } else {
                 alert("Todos los campos son obligatorios");
             }
@@ -166,7 +170,7 @@
 
         window.actualizarRegistro = function (nombre) {
             const updates = {};
-            updates['/producto/' + nombre] = {
+            updates[`/producto/${nombre}`] = {
                 nombre: nombreInput.value,
                 tipo: tipoInput.value,
                 distribuidora: distribuidoraInput.value,
@@ -180,7 +184,7 @@
         }
 
         window.eliminarRegistro = function (nombre) {
-            remove(ref(database, 'producto/' + nombre));
+            remove(ref(database, `producto/${nombre}`));
 
             limpiarFormulario();
         }
