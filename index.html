@@ -74,7 +74,7 @@
 </head>
 
 <body>
-    <h1>CRUD Productos Quito</h1>
+    <h1>CRUD Productos Ecuador</h1>
     <form id="crud-form">
         <label for="nombre">Nombre del Producto:</label>
         <input type="text" id="nombre" required>
@@ -86,7 +86,7 @@
         <input type="number" id="cantidad" required>
         <label for="fecha">Fecha de Envío:</label>
         <input type="date" id="fecha" required>
-        <input type="hidden" id="recordKey">
+        <input type="hidden" id="recordKey"> <!-- Hidden input to store the key of the current record -->
         <button type="button" onclick="crearOActualizarRegistro()">Guardar</button>
         <button type="button" onclick="limpiarFormulario()">Limpiar</button>
     </form>
@@ -109,19 +109,18 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, push, update, remove, onValue, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, push, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         // Configuración de Firebase
         const firebaseConfig = {
-    apiKey: "AIzaSyBMJsVpnbOwVOiVNbTZScZdet9qlGigDL0",
-    authDomain: "conexion-8ec0d.firebaseapp.com",
-    databaseURL: "https://conexion-8ec0d-default-rtdb.firebaseio.com",
-    projectId: "conexion-8ec0d",
-    storageBucket: "conexion-8ec0d.appspot.com",
-    messagingSenderId: "679910299749",
-    appId: "1:679910299749:web:9800b464879628b4850e8c"
-  };
-
+  apiKey: "AIzaSyBMJsVpnbOwVOiVNbTZScZdet9qlGigDL0",
+  authDomain: "conexion-8ec0d.firebaseapp.com",
+  databaseURL: "https://conexion-8ec0d-default-rtdb.firebaseio.com",
+  projectId: "conexion-8ec0d",
+  storageBucket: "conexion-8ec0d.appspot.com",
+  messagingSenderId: "679910299749",
+  appId: "1:679910299749:web:9800b464879628b4850e8c"
+};
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
@@ -133,7 +132,10 @@
         const fechaInput = document.getElementById("fecha");
         const recordKeyInput = document.getElementById("recordKey");
 
-        window.crearOActualizarRegistro = async function () {
+        // Array para almacenar fechas
+        const fechasRegistradas = [];
+
+        window.crearOActualizarRegistro = function () {
             const nombre = nombreInput.value;
             const tipo = tipoInput.value;
             const distribuidora = distribuidoraInput.value;
@@ -142,35 +144,23 @@
             const recordKey = recordKeyInput.value;
 
             if (nombre && tipo && distribuidora && cantidad && fecha) {
-                // Verificar si la fecha ya existe
-                const fechaExistente = await verificarFechaExistente(fecha, recordKey);
-                
-                if (!fechaExistente) {
-                    if (recordKey) {
-                        // Si recordKey está presente, actualizar el registro existente
-                        actualizarRegistro(recordKey);
-                    } else {
-                        // Si recordKey no está presente, crear un nuevo registro
-                        crearRegistro();
-                    }
+                if (fechasRegistradas.includes(fecha)) {
+                    alert("Ya hay un producto registrado para esta fecha.");
                 } else {
-                    alert("La fecha ya existe. Por favor, elige otra fecha.");
+                    if (recordKey) {
+                        // Si recordKey está presente, actualiza el registro existente
+                        actualizarRegistro(recordKey, fecha);
+                    } else {
+                        // Si recordKey no está presente, crea un nuevo registro
+                        crearRegistro(fecha);
+                    }
                 }
             } else {
                 alert("Todos los campos son obligatorios");
             }
         }
 
-        async function verificarFechaExistente(fecha, currentRecordKey) {
-            const snapshot = await orderByChildAndEqualTo('fecha', fecha);
-            return snapshot.exists() && snapshot.key !== currentRecordKey;
-        }
-
-        function orderByChildAndEqualTo(child, value) {
-            return getDatabase().ref('producto').orderByChild(child).equalTo(value).once('value');
-        }
-
-        function crearRegistro() {
+        function crearRegistro(fecha) {
             push(
                 ref(database, 'Bryan_Sanchez'),
                 {
@@ -178,30 +168,40 @@
                     tipo: tipoInput.value,
                     distribuidora: distribuidoraInput.value,
                     cantidad: cantidadInput.value,
-                    fecha: fechaInput.value
+                    fecha: fecha
                 }
             );
+
+            // Agrega la fecha al array
+            fechasRegistradas.push(fecha);
 
             limpiarFormulario();
         }
 
-        window.actualizarRegistro = function (key) {
+        window.actualizarRegistro = function (nombre, fechaAnterior) {
+            const fecha = fechaInput.value;
             const updates = {};
-            updates['/Bryan_Sanchez/' + key] = {
+            updates[`/producto/${nombre}`] = {
                 nombre: nombreInput.value,
                 tipo: tipoInput.value,
                 distribuidora: distribuidoraInput.value,
                 cantidad: cantidadInput.value,
-                fecha: fechaInput.value
+                fecha: fecha
             };
 
             update(ref(database), updates);
 
+            // Actualiza el array de fechas
+            actualizarFechas(fechaAnterior, fecha);
+
             limpiarFormulario();
         }
 
-        window.eliminarRegistro = function (key) {
-            remove(ref(database, 'Bryan_Sanchez/' + key));
+        window.eliminarRegistro = function (nombre, fecha) {
+            remove(ref(database, `Bryan_Sanchez/${nombre}`));
+
+            // Elimina la fecha del array
+            eliminarFecha(fecha);
 
             limpiarFormulario();
         }
@@ -222,10 +222,15 @@
                     <td>${data.fecha}</td>
                     <td>
                         <button onclick="llenarFormulario('${key}', '${data.nombre}', '${data.tipo}', '${data.distribuidora}', '${data.cantidad}', '${data.fecha}')">Actualizar</button>
-                        <button onclick="eliminarRegistro('${key}')">Eliminar</button>
+                        <button onclick="eliminarRegistro('${key}', '${data.fecha}')">Eliminar</button>
                     </td>
                 `;
                 tableBody.appendChild(row);
+
+                // Agrega la fecha al array al cargar la página
+                if (!fechasRegistradas.includes(data.fecha)) {
+                    fechasRegistradas.push(data.fecha);
+                }
             });
         });
 
@@ -240,7 +245,7 @@
             const crearButton = document.querySelector("button[onclick='crearOActualizarRegistro()']");
             crearButton.textContent = "Actualizar";
             crearButton.onclick = function () {
-                actualizarRegistro(key);
+                actualizarRegistro(key, fecha);
             };
         }
 
@@ -250,13 +255,29 @@
             distribuidoraInput.value = "";
             cantidadInput.value = "";
             fechaInput.value = "";
-            recordKeyInput.value = "";
+            recordKeyInput.value = ""; // Limpiar la clave del registro
 
             const crearButton = document.querySelector("button[onclick='crearOActualizarRegistro()']");
             crearButton.textContent = "Guardar";
             crearButton.onclick = function () {
                 crearOActualizarRegistro();
             };
+        }
+
+        function actualizarFechas(fechaAnterior, fechaNueva) {
+            // Actualiza la fecha en el array
+            const index = fechasRegistradas.indexOf(fechaAnterior);
+            if (index !== -1) {
+                fechasRegistradas[index] = fechaNueva;
+            }
+        }
+
+        function eliminarFecha(fecha) {
+            // Elimina la fecha del array
+            const index = fechasRegistradas.indexOf(fecha);
+            if (index !== -1) {
+                fechasRegistradas.splice(index, 1);
+            }
         }
     </script>
 </body>
