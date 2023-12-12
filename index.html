@@ -138,10 +138,9 @@
             const fecha = fechaInput.value;
 
             if (nombre && tipo && distribuidora && cantidad && fecha) {
-                const nombreExistente = document.getElementById("nombre-existente");
-
-                if (nombreExistente) {
-                    actualizarRegistro(nombreExistente.value);
+                const crearButton = document.querySelector("button[onclick='crearOActualizarRegistro()']");
+                if (crearButton.textContent === "Actualizar") {
+                    actualizarRegistro(nombre);
                 } else {
                     crearRegistro();
                 }
