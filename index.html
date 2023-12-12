@@ -74,7 +74,7 @@
 </head>
 
 <body>
-    <h1>CRUD Productos Pepsi</h1>
+    <h1>CRUD Productos Ecuador</h1>
     <form id="crud-form">
         <label for="nombre">Nombre del Producto:</label>
         <input type="text" id="nombre" required>
@@ -113,13 +113,14 @@
 
         // Configuración de Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyCeD00MYtaB7fgLKPLdrHYV6kHZZVY54p8",
-            authDomain: "producto-cf3d9.firebaseapp.com",
-            projectId: "producto-cf3d9",
-            storageBucket: "producto-cf3d9.appspot.com",
-            messagingSenderId: "316265919078",
-            appId: "1:316265919078:web:a2557e55446fc1d9b373a7"
-        };
+    apiKey: "AIzaSyBMJsVpnbOwVOiVNbTZScZdet9qlGigDL0",
+    authDomain: "conexion-8ec0d.firebaseapp.com",
+    databaseURL: "https://conexion-8ec0d-default-rtdb.firebaseio.com",
+    projectId: "conexion-8ec0d",
+    storageBucket: "conexion-8ec0d.appspot.com",
+    messagingSenderId: "679910299749",
+    appId: "1:679910299749:web:9800b464879628b4850e8c"
+  };
 
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
@@ -155,7 +156,7 @@
 
         function crearRegistro() {
             push(
-                ref(database, 'producto'),
+                ref(database, 'Bryan_Sanchez'),
                 {
                     nombre: nombreInput.value,
                     tipo: tipoInput.value,
